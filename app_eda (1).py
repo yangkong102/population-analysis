@@ -256,7 +256,7 @@ class EDA:
 
 
         # 1. 목적 & 분석 절차
-        with tabs[0]:
+        with tabs[1]:
             st.header("🔭 목적 & 분석 절차")
             st.markdown("""
             **목적**: Bike Sharing Demand 데이터셋을 탐색하고,
@@ -273,7 +273,7 @@ class EDA:
             """)
 
         # 2. 데이터셋 설명
-        with tabs[1]:
+        with tabs[2]:
             st.header("🔍 데이터셋 설명")
             st.markdown(f"""
             - **train.csv**: 2011–2012년까지의 시간대별 대여 기록  
@@ -310,7 +310,7 @@ class EDA:
             st.dataframe(df.head())
 
         # 3. 데이터 로드 & 품질 체크
-        with tabs[2]:
+        with tabs[3]:
             st.header("📥 데이터 로드 & 품질 체크")
             st.subheader("결측값 개수")
             missing = df.isnull().sum()
@@ -320,7 +320,7 @@ class EDA:
             st.write(f"- 중복 행 개수: {duplicates}개")
 
         # 4. Datetime 특성 추출
-        with tabs[3]:
+        with tabs[4]:
             st.header("🕒 Datetime 특성 추출")
             st.markdown("`datetime` 컬럼에서 연, 월, 일, 시, 요일 등을 추출합니다.")
 
@@ -353,7 +353,7 @@ class EDA:
             st.dataframe(mapping_df, hide_index=True)
 
         # 5. 시각화
-        with tabs[4]:
+        with tabs[5]:
             st.header("📈 시각화")
             # by 근무일 여부
             st.subheader("근무일 여부별 시간대별 평균 대여량")
@@ -405,7 +405,7 @@ class EDA:
             )
 
         # 6. 상관관계 분석
-        with tabs[5]:
+        with tabs[6]:
             st.header("🔗 상관관계 분석")
             # 관심 피처만 선택
             features = ['temp', 'atemp', 'casual', 'registered', 'humidity',
@@ -430,7 +430,7 @@ class EDA:
             )
 
         # 7. 이상치 제거
-        with tabs[6]:
+        with tabs[7]:
             st.header("🚫 이상치 제거")
             # 평균·표준편차 계산
             mean_count = df['count'].mean()
@@ -448,7 +448,7 @@ class EDA:
             st.write(f"- 이상치 제거 전: {df.shape[0]}개, 제거 후: {df_no.shape[0]}개")
 
         # 8. 로그 변환
-        with tabs[7]:
+        with tabs[8]:
             st.header("🔄 로그 변환")
             st.markdown("""
                 **로그 변환 맥락**  
