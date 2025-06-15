@@ -202,15 +202,16 @@ class Logout:
 # ---------------------
 class EDA:
     def __init__(self):
-        st.title("📊 Bike Sharing Demand EDA")
-        uploaded = st.file_uploader("데이터셋 업로드 (train.csv)", type="csv")
+        
+        st.title("📊 Population Trends csv")
+        uploaded = st.file_uploader("population_trends.csv 업로드", type="csv", key="pop_file")
         if not uploaded:
             st.info("train.csv 파일을 업로드 해주세요.")
             return
 
-        df = pd.read_csv(uploaded, parse_dates=['datetime'])
 
         tabs = st.tabs([
+            "0. 인구 트렌드 데이터 전처리",
             "1. 목적 & 절차",
             "2. 데이터셋 설명",
             "3. 데이터 로드 & 품질 체크",
@@ -220,6 +221,34 @@ class EDA:
             "7. 이상치 제거",
             "8. 로그 변환"
         ])
+
+        # ✅ 0. 인구 트렌드 데이터 전처리
+        with tabs[0]:
+            st.header("👪 인구 트렌드: '세종' 지역 전처리 및 요약")
+
+                df = pd.read_csv(uploaded)
+
+                # '세종' 지역 필터링
+                df_sejong = df[df['행정구역'].str.contains('세종', na=False)].copy()
+
+                # 대상 열 지정 및 전처리
+                target_cols = ['인구', '출생아수(명)', '사망자수(명)']
+                for col in target_cols:
+                    df_sejong[col] = df_sejong[col].replace('-', 0)
+                    df_sejong[col] = pd.to_numeric(df_sejong[col], errors='coerce').fillna(0).astype(int)
+
+                st.subheader("📋 전처리된 데이터 요약 통계 (`describe()`)")
+                st.dataframe(df_sejong.describe())
+
+                st.subheader("🔍 데이터프레임 구조 (`info()`)")
+                buffer = io.StringIO()
+                df_sejong.info(buf=buffer)
+                st.text(buffer.getvalue())
+
+                st.subheader("🧾 샘플 데이터 (상위 5개)")
+                st.dataframe(df_sejong.head())
+            else:
+                st.info("population_trends.csv 파일을 업로드해주세요.")
 
         # 1. 목적 & 분석 절차
         with tabs[0]:
