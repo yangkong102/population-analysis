@@ -247,8 +247,7 @@ class EDA:
 
             st.subheader("🧾 샘플 데이터 (상위 5개)")
             st.dataframe(df_sejong.head())
-            else:
-                st.info("population_trends.csv 파일을 업로드해주세요.")
+
 
         # 1. 목적 & 분석 절차
         with tabs[0]:
