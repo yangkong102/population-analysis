@@ -228,25 +228,31 @@ class EDA:
 
             df = pd.read_csv(uploaded)
 
-            # '세종' 지역 필터링
-            df_sejong = df[df['행정구역'].str.contains('세종', na=False)].copy()
+            # 1. '세종' 지역 필터링 (열 이름: '지역'이 존재한다고 가정)
+            df_sejong = df[df['지역'].str.contains("세종", na=False)].copy()
 
-            # 대상 열 지정 및 전처리
-            target_cols = ['인구', '출생아수(명)', '사망자수(명)']
-            for col in target_cols:
-                df_sejong[col] = df_sejong[col].replace('-', 0)
+            # 2. 전체 데이터에서 '-' → 0 으로 치환
+            df_sejong = df_sejong.replace('-', 0)
+
+            # 3. 지정 열을 숫자로 변환
+            numeric_cols = ['인구', '출생아수(명)', '사망자수(명)']
+            for col in numeric_cols:
                 df_sejong[col] = pd.to_numeric(df_sejong[col], errors='coerce').fillna(0).astype(int)
 
-            st.subheader("📋 전처리된 데이터 요약 통계 (`describe()`)")
+            # 4-1. describe() 출력
+            st.subheader("📊 데이터 요약 통계 (`describe()`)")
             st.dataframe(df_sejong.describe())
 
-            st.subheader("🔍 데이터프레임 구조 (`info()`)")
+            # 4-2. info() 출력
+            st.subheader("📄 데이터프레임 구조 (`info()`)")
             buffer = io.StringIO()
             df_sejong.info(buf=buffer)
             st.text(buffer.getvalue())
 
-            st.subheader("🧾 샘플 데이터 (상위 5개)")
+            # 5. 샘플 확인
+            st.subheader("🔍 전처리된 '세종' 지역 데이터 (상위 5개)")
             st.dataframe(df_sejong.head())
+
 
 
         # 1. 목적 & 분석 절차
