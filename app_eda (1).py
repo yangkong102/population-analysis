@@ -271,44 +271,56 @@ class EDA:
             6. 이상치 탐지 및 제거  
             7. 로그 변환을 통한 분포 안정화
             """)
-
-        # 2. 데이터셋 설명
         with tabs[2]:
-            st.header("🔍 데이터셋 설명")
+            # 2. 데이터셋 설명
+            df_total = df[df['지역'] == '전국'].copy()
+
+            # 2. 결측치 '-' → 0, 필요 열 숫자 변환
+            df_total.replace('-', 0, inplace=True)
+            for col in ['인구', '출생아수(명)', '사망자수(명)']:
+                df_total[col] = pd.to_numeric(df_total[col], errors='coerce').fillna(0)
+
+            # 3. 연도 정렬
+            df_total = df_total.sort_values(by='연도')
+            df_total['연도'] = pd.to_numeric(df_total['연도'], errors='coerce').astype(int)
+
+            # 4. 최근 3년 평균 자연 증가 계산
+            df_recent = df_total.tail(3)
+            avg_birth = df_recent['출생아수(명)'].mean()
+            avg_death = df_recent['사망자수(명)'].mean()
+            avg_net_change = avg_birth - avg_death
+
+            # 5. 2035년 인구 예측 (가장 최근 인구 기준)
+            last_year = df_total['연도'].max()
+            last_pop = df_total[df_total['연도'] == last_year]['인구'].values[0]
+            years_to_2035 = 2035 - last_year
+            pop_2035 = last_pop + avg_net_change * years_to_2035
+
+            # 6. 그래프용 데이터프레임 생성
+            df_plot = df_total[['연도', '인구']].copy()
+            df_plot.loc[len(df_plot)] = [2035, pop_2035]
+
+            # 7. 그래프 그리기
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.plot(df_plot['연도'], df_plot['인구'], marker='o', label='Observed')
+            ax.axvline(2035, color='red', linestyle='--', alpha=0.5)
+            ax.scatter(2035, pop_2035, color='red', zorder=5, label=f'2035 Projection')
+            ax.set_title("Population Trend and 2035 Forecast")
+            ax.set_xlabel("Year")
+            ax.set_ylabel("Population")
+            ax.legend()
+            ax.grid(True)
+
+            # 8. Streamlit에 그래프 출력
+            st.pyplot(fig)
+
+            # 9. 예측 정보 요약
             st.markdown(f"""
-            - **train.csv**: 2011–2012년까지의 시간대별 대여 기록  
-            - 총 관측치: {df.shape[0]}개  
-            - 주요 변수:
-              - **datetime**: 날짜와 시간 (YYYY-MM-DD HH:MM:SS)  
-              - **season**: 계절 (1: 봄, 2: 여름, 3: 가을, 4: 겨울)  
-              - **holiday**: 공휴일 여부 (0: 평일, 1: 공휴일)  
-              - **workingday**: 근무일 여부 (0: 주말/공휴일, 1: 근무일)  
-              - **weather**: 날씨 상태  
-                - 1: 맑음·부분적으로 흐림  
-                - 2: 안개·흐림  
-                - 3: 가벼운 비/눈  
-                - 4: 폭우/폭설 등  
-              - **temp**: 실제 기온 (섭씨)  
-              - **atemp**: 체감 온도 (섭씨)  
-              - **humidity**: 상대 습도 (%)  
-              - **windspeed**: 풍속 (정규화된 값)  
-              - **casual**: 비등록 사용자 대여 횟수  
-              - **registered**: 등록 사용자 대여 횟수  
-              - **count**: 전체 대여 횟수 (casual + registered)
+            ### 📌 2035 Population Forecast
+            - Based on the average natural change (births - deaths) over the last 3 years  
+            - Average annual change: `{avg_net_change:,.0f}` people  
+            - Projected 2035 Population: **{pop_2035:,.0f}**
             """)
-
-            st.subheader("1) 데이터 구조 (`df.info()`)")
-            buffer = io.StringIO()
-            df.info(buf=buffer)
-            st.text(buffer.getvalue())
-
-            st.subheader("2) 기초 통계량 (`df.describe()`)")
-            numeric_df = df.select_dtypes(include=[np.number])
-            st.dataframe(numeric_df.describe())
-
-            st.subheader("3) 샘플 데이터 (첫 5행)")
-            st.dataframe(df.head())
-
         # 3. 데이터 로드 & 품질 체크
         with tabs[3]:
             st.header("📥 데이터 로드 & 품질 체크")
