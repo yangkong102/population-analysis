@@ -412,13 +412,12 @@ class EDA:
             # ---------- 해설 ----------
             st.markdown("### Analysis Summary")
             st.markdown("""
-            The first chart shows the total population change (in thousands) over the past five years.
-            Gyeonggi and Sejong stand out as regions with significant population growth in absolute terms.
-            In contrast, regions such as Busan, Daegu, and Jeonbuk have experienced population decline.
-
-            The second chart displays the percentage change in population over the same period.
-            Although Sejong has a smaller population, it shows the highest growth rate, indicating rapid development or migration.
-            Regions with negative growth rates may reflect aging populations or migration to metropolitan areas.
+            첫 번째 차트는 지난 5년간의 전체 인구 변화(천 명 단위)를 보여줍니다. 
+            경기와 세종은 절대적인 수치로 볼 때 인구가 크게 증가한 지역으로 눈에 띕니다. 
+            반면, 부산, 대구, 전북 등은 인구가 감소한 지역입니다. 
+            두 번째 차트는 같은 기간 동안의 인구 변화율을 나타냅니다. 
+            세종은 전체 인구는 적지만 가장 높은 성장률을 보여, 빠른 개발이나 인구 유입이 이루어지고 있음을 나타냅니다. 
+            반면, 인구 증가율이 음수인 지역은 고령화나 대도시로의 인구 이동 현상을 반영할 수 있습니다.
             """)
 
        
