@@ -360,7 +360,7 @@ class EDA:
 
         # 5. 시각화
         with tabs[5]:
-            st.header("📈 시각화")
+            st.header("📈 Population Trends by Region and Year")
             df = pd.read_csv(uploaded)  # 업로드된 CSV 파일 경로 또는 직접 업로드
 
             # 한글 -> 영문 지역명 매핑
