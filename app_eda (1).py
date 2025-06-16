@@ -473,7 +473,7 @@ class EDA:
             df = df[df['지역'] != '전국']  # '전국' 제외
             df['Region'] = df['지역'].map(region_map)
             df['Year'] = df['연도']
-            df['Population'] = df['인구'].astype(int)
+            df['Population'] = df['인구'].replace(',','').astype(int)
 
             # 피벗 테이블 생성: 연도(행) × 지역(열)
             pivot_df = df.pivot_table(index='Year', columns='Region', values='Population')
