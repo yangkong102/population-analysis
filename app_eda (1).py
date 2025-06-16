@@ -473,7 +473,7 @@ class EDA:
             df = df[df['지역'] != '전국']  # '전국' 제외
             df['Region'] = df['지역'].map(region_map)
             df['Year'] = df['연도']
-<<<<<<< HEAD
+
             df['Population'] = (
                 pd.to_numeric(df['인구'].astype(str).str.replace(',', ''), errors='coerce')
                 .fillna(0)
