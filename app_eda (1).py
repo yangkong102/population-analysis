@@ -228,8 +228,7 @@ class EDA:
         with tabs[0]:
             st.header("🔭 목적 & 분석 절차")
             st.markdown("""
-            **목적**: Bike Sharing Demand 데이터셋을 탐색하고,
-            다양한 특성이 대여량(count)에 미치는 영향을 파악합니다.
+            
 
             **절차**:
             1. 인구 트렌드 데이터 전처리
