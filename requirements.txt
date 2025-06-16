@@ -3,3 +3,4 @@ pyrebase4
 setuptools
 matplotlib
 seaborn
+pandas
