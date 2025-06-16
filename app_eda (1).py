@@ -272,6 +272,7 @@ class EDA:
             7. 로그 변환을 통한 분포 안정화
             """)
         with tabs[2]:
+            st.header("🔭 연도별 전체 인구 추이 그래프")
             # 2. 데이터셋 설명
             df_total = df[df['지역'] == '전국'].copy()
 
