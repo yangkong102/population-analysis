@@ -216,7 +216,8 @@ class EDA:
             "2. 데이터셋 설명",
             "3. 지역별 인구 변화량 순위",
             "4. 증감률 상위 지역 및 연도 도출",
-            "5. 시각화",
+            "5. 시각화"
+            "6. 증감률 상위 지역 및 연도 도출 요청",
         ])
 
         # 0. 목적 & 분석 절차
@@ -232,6 +233,7 @@ class EDA:
             3. 지역별 인구 변화량 순위
             4. 증감률 상위 지역 및 연도 도출
             5. 시각화
+            6. 
 
             """)
         # ✅ 1. 인구 트렌드 데이터 전처리
@@ -490,6 +492,69 @@ class EDA:
             # 데이터 표 출력
             st.subheader("Population Pivot Table")
             st.dataframe(pivot_df.style.format('{:,}'))
+
+            with tabs[6]:
+                # CSV 파일 불러오기
+                df = pd.read_csv("population_trends.csv")  # 필요 시 경로 조정
+
+                # 전처리
+                region_map = {
+                    '서울': 'Seoul', '부산': 'Busan', '대구': 'Daegu', '인천': 'Incheon',
+                    '광주': 'Gwangju', '대전': 'Daejeon', '울산': 'Ulsan', '세종': 'Sejong',
+                    '경기': 'Gyeonggi', '강원': 'Gangwon', '충북': 'Chungbuk', '충남': 'Chungnam',
+                    '전북': 'Jeonbuk', '전남': 'Jeonnam', '경북': 'Gyeongbuk', '경남': 'Gyeongnam',
+                    '제주': 'Jeju'
+                }
+
+                df = df[df['지역'] != '전국'].copy()
+                df['Region'] = df['지역'].map(region_map)
+                df['Year'] = df['연도']
+                df['Population'] = df['인구'].astype(int)
+
+                # 연도별 인구 증감(diff) 계산
+                df.sort_values(by=['Region', 'Year'], inplace=True)
+                df['Change'] = df.groupby('Region')['Population'].diff()
+
+                # 상위 100개 증감 사례 추출
+                top100 = df.dropna(subset=['Change']).copy()
+                top100 = top100.sort_values(by='Change', ascending=False).head(100)
+
+                # 숫자 포맷팅
+                top100['Population_fmt'] = top100['Population'].apply(lambda x: f"{x:,}")
+                top100['Change_fmt'] = top100['Change'].astype(int).apply(lambda x: f"{x:,}")
+
+                # 시각화를 위한 데이터프레임 준비
+                display_df = top100[['Year', 'Region', 'Population_fmt', 'Change_fmt']].rename(
+                    columns={
+                        'Year': 'Year',
+                        'Region': 'Region',
+                        'Population_fmt': 'Population',
+                        'Change_fmt': 'Change'
+                    }
+                )
+
+                # 컬러 스타일 함수 정의
+                def highlight_change(val):
+                    try:
+                        val = int(val.replace(',', ''))
+                    except:
+                        return ''
+                    if val > 0:
+                        return f'background-color: rgba(0, 120, 255, {min(val / top100["Change"].max(), 1):.5f})'
+                    elif val < 0:
+                        return f'background-color: rgba(255, 0, 0, {min(abs(val) / abs(top100["Change"].min()), 1):.5f})'
+                    else:
+                        return ''
+
+                # 컬러 스타일 적용
+                styled_df = display_df.style.applymap(highlight_change, subset=['Change'])
+
+                # 제목 출력
+                st.title("Top 100 Population Change Records by Region and Year")
+                st.write("This table highlights the top 100 year-over-year population changes across all regions (excluding national total).")
+
+                # 테이블 출력
+                st.dataframe(styled_df, use_container_width=True)
 
 
 
