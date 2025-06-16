@@ -330,8 +330,7 @@ class EDA:
             # 앱 제목
             st.title("5-Year Population Change by Region")
 
-            # 데이터 불러오기
-            df = pd.read_csv(uploaded) 
+
 
             # 한글 -> 영문 지역명 매핑
             region_map = {
@@ -428,8 +427,7 @@ class EDA:
         with tabs[4]:
             st.header("🕒 증감률 상위 지역 및 연도 도출")
             
-            # CSV 또는 사전 처리된 데이터프레임 불러오기
-            df = pd.read_csv(uploaded)  
+
 
             # 데이터 전처리 (전국 제외, 증감 계산 등)
             df = df[df['지역'] != '전국']
@@ -461,7 +459,7 @@ class EDA:
         # 5. 시각화
         with tabs[5]:
             st.header("📈 Population Trends by Region and Year")
-            df = pd.read_csv(uploaded)  # 업로드된 CSV 파일 경로 또는 직접 업로드
+
 
             # 한글 -> 영문 지역명 매핑
             region_map = {
@@ -498,8 +496,7 @@ class EDA:
             st.dataframe(pivot_df.style.format('{:,}'))
 
             with tabs[6]:
-                # CSV 파일 불러오기
-                df = pd.read_csv("population_trends.csv")  # 필요 시 경로 조정
+
 
                 # 전처리
                 region_map = {
