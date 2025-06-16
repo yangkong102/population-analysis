@@ -323,6 +323,103 @@ class EDA:
             - Projected 2035 Population: **{pop_2035:,.0f}**
             """)
         # 3. 데이터 로드 & 품질 체크
+        with tabs[3]:
+            # 앱 제목
+            st.title("5-Year Population Change by Region")
+
+            # 데이터 불러오기
+            df = pd.read_csv(uploaded) 
+
+            # 한글 -> 영문 지역명 매핑
+            region_map = {
+                '서울': 'Seoul', '부산': 'Busan', '대구': 'Daegu', '인천': 'Incheon',
+                '광주': 'Gwangju', '대전': 'Daejeon', '울산': 'Ulsan', '세종': 'Sejong',
+                '경기': 'Gyeonggi', '강원': 'Gangwon', '충북': 'Chungbuk', '충남': 'Chungnam',
+                '전북': 'Jeonbuk', '전남': 'Jeonnam', '경북': 'Gyeongbuk', '경남': 'Gyeongnam',
+                '제주': 'Jeju'
+            }
+
+            # 전처리
+            df = df[df['지역'] != '전국']
+            df['Region'] = df['지역'].map(region_map)
+            df['Year'] = df['연도']
+            df['Population'] = df['인구'].astype(int)
+
+            # 가장 최근 연도 및 5년 전 연도 계산
+            latest_year = df['Year'].max()
+            past_year = latest_year - 5
+
+            # 최근 5년간의 시작/종료 연도별 데이터 추출
+            df_latest = df[df['Year'] == latest_year][['Region', 'Population']]
+            df_past = df[df['Year'] == past_year][['Region', 'Population']]
+
+            # 병합 및 변화량/비율 계산
+            merged = pd.merge(df_latest, df_past, on='Region', suffixes=('_latest', '_past'))
+            merged['Change (thousands)'] = (merged['Population_latest'] - merged['Population_past']) / 1000
+            merged['Change Rate (%)'] = ((merged['Population_latest'] - merged['Population_past']) / merged['Population_past']) * 100
+
+            # 정렬
+            merged.sort_values(by='Change (thousands)', ascending=False, inplace=True)
+
+            # 그래프 스타일
+            sns.set(style="whitegrid")
+
+            # ---------- 그래프 1: 변화량 ----------
+            fig1, ax1 = plt.subplots(figsize=(10, 8))
+            barplot1 = sns.barplot(
+                data=merged,
+                y='Region',
+                x='Change (thousands)',
+                palette='Blues_d',
+                ax=ax1
+            )
+            ax1.set_title("Population Change (Last 5 Years)", fontsize=14)
+            ax1.set_xlabel("Change (thousands)")
+            ax1.set_ylabel("Region")
+
+            # 막대 위에 값 표시
+            for p in barplot1.patches:
+                width = p.get_width()
+                ax1.text(width + 1, p.get_y() + p.get_height() / 2,
+                        f'{width:,.1f}', va='center')
+
+            st.pyplot(fig1)
+
+            # ---------- 그래프 2: 변화율 ----------
+            merged.sort_values(by='Change Rate (%)', ascending=False, inplace=True)
+
+            fig2, ax2 = plt.subplots(figsize=(10, 8))
+            barplot2 = sns.barplot(
+                data=merged,
+                y='Region',
+                x='Change Rate (%)',
+                palette='coolwarm',
+                ax=ax2
+            )
+            ax2.set_title("Population Growth Rate (%) (Last 5 Years)", fontsize=14)
+            ax2.set_xlabel("Growth Rate (%)")
+            ax2.set_ylabel("Region")
+
+            # 막대 위에 값 표시
+            for p in barplot2.patches:
+                width = p.get_width()
+                ax2.text(width + 0.2, p.get_y() + p.get_height() / 2,
+                        f'{width:.2f}%', va='center')
+
+            st.pyplot(fig2)
+
+            # ---------- 해설 ----------
+            st.markdown("### Analysis Summary")
+            st.markdown("""
+            The first chart shows the total population change (in thousands) over the past five years.
+            Gyeonggi and Sejong stand out as regions with significant population growth in absolute terms.
+            In contrast, regions such as Busan, Daegu, and Jeonbuk have experienced population decline.
+
+            The second chart displays the percentage change in population over the same period.
+            Although Sejong has a smaller population, it shows the highest growth rate, indicating rapid development or migration.
+            Regions with negative growth rates may reflect aging populations or migration to metropolitan areas.
+            """)
+
        
         # 4. Datetime 특성 추출
         with tabs[4]:
