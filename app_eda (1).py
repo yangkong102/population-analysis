@@ -325,6 +325,7 @@ class EDA:
         # 3. 데이터 로드 & 품질 체크
         with tabs[3]:
             st.header("📥 데이터 로드 & 품질 체크")
+            df = pd.read_csv(uploaded)
             df = df.replace('-', 0)
             df['인구'] = pd.to_numeric(df['인구'], errors='coerce').fillna(0)
             df['연도'] = pd.to_numeric(df['연도'], errors='coerce').fillna(0).astype(int)
@@ -404,35 +405,36 @@ class EDA:
         # 4. Datetime 특성 추출
         with tabs[4]:
             st.header("🕒 Datetime 특성 추출")
-            st.markdown("`datetime` 컬럼에서 연, 월, 일, 시, 요일 등을 추출합니다.")
+            
+            # CSV 또는 사전 처리된 데이터프레임 불러오기
+            df = pd.read_csv(uploaded)  
 
-            df['year'] = df['datetime'].dt.year
-            df['month'] = df['datetime'].dt.month
-            df['day'] = df['datetime'].dt.day
-            df['hour'] = df['datetime'].dt.hour
-            df['dayofweek'] = df['datetime'].dt.dayofweek
+            # 데이터 전처리 (전국 제외, 증감 계산 등)
+            df = df[df['지역'] != '전국']
+            df.sort_values(by=['지역', '연도'], inplace=True)
+            df['인구증감'] = df.groupby('지역')['인구'].diff()
+            df = df.dropna(subset=['인구증감']).sort_values(by='인구증감', ascending=False).head(100)
 
-            st.subheader("추출된 특성 예시")
-            st.dataframe(df[['datetime', 'year', 'month', 'day', 'hour',
-                             'dayofweek']].head())
+            # 천단위 콤마 포맷
+            df['인구'] = df['인구'].astype(int).map('{:,}'.format)
+            df['인구증감'] = df['인구증감'].astype(int)
 
-            # --- 요일 숫자 → 요일명 매핑 (참고용) ---
-            day_map = {
-                0: '월요일',
-                1: '화요일',
-                2: '수요일',
-                3: '목요일',
-                4: '금요일',
-                5: '토요일',
-                6: '일요일'
-            }
-            st.markdown("**(참고) dayofweek 숫자 → 요일**")
-            # 중복 제거 후 정렬하여 표시
-            mapping_df = pd.DataFrame({
-                'dayofweek': list(day_map.keys()),
-                'weekday': list(day_map.values())
-            })
-            st.dataframe(mapping_df, hide_index=True)
+            # Streamlit 앱 출력
+            st.title("연도별 지역 인구 증감 Top 100")
+
+            # 컬러맵 설정 (양수: 파랑, 음수: 빨강)
+            def highlight_change(val):
+                color = 'background-color: '
+                if val > 0:
+                    color += f'rgba(0, 100, 255, {min(val / df["인구증감"].max(), 1):.2f})'
+                else:
+                    color += f'rgba(255, 0, 0, {min(abs(val) / abs(df["인구증감"].min()), 1):.2f})'
+                return color
+
+            styled_df = df.style.applymap(highlight_change, subset=['인구증감']) \
+                                .format({'인구증감': '{:,}'})
+
+            st.dataframe(styled_df)
 
         # 5. 시각화
         with tabs[5]:
