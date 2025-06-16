@@ -234,7 +234,12 @@ class EDA:
         with tabs[1]:
             st.header("👪 인구 트렌드: '세종' 지역 전처리 및 요약")
 
-            
+            st.subheader("결측값 개수")
+            missing = df.isnull().sum()
+            st.bar_chart(missing)
+
+            duplicates = df.duplicated().sum()
+            st.write(f"- 중복 행 개수: {duplicates}개")
 
             # 1. '세종' 지역 필터링 (열 이름: '지역'이 존재한다고 가정)
             df_sejong = df[df['지역'].str.contains("세종", na=False)].copy()
