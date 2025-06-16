@@ -221,7 +221,7 @@ class EDA:
         ])
 
 
-        
+        df = pd.read_csv(uploaded)
 
 
         # 0. 목적 & 분석 절차
@@ -244,7 +244,7 @@ class EDA:
         with tabs[1]:
             st.header("👪 인구 트렌드: '세종' 지역 전처리 및 요약")
 
-            df = pd.read_csv(uploaded)
+            
 
             # 1. '세종' 지역 필터링 (열 이름: '지역'이 존재한다고 가정)
             df_sejong = df[df['지역'].str.contains("세종", na=False)].copy()
