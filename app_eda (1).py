@@ -323,8 +323,7 @@ class EDA:
             - Projected 2035 Population: **{pop_2035:,.0f}**
             """)
         # 3. 데이터 로드 & 품질 체크
-        with tabs[3]:
-         pass
+       
         # 4. Datetime 특성 추출
         with tabs[4]:
             st.header("🕒 Datetime 특성 추출")
