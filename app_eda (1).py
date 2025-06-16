@@ -286,7 +286,7 @@ class EDA:
 
             # 3. 연도 정렬
             df_total = df_total.sort_values(by='연도')
-            df_total['연도'] = pd.to_numeric(df_total['연도'], errors='coerce').astype(int)
+            df_total['연도'] = pd.to_numeric(df_total['연도'], errors='coerce').fillna(0).astype(int)
 
             # 4. 최근 3년 평균 자연 증가 계산
             df_recent = df_total.tail(3)
